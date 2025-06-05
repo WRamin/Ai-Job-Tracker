@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { supabase } from './supabaseClient';
-import React from 'react';
 import Auth from './components/Auth';
+import JobForm from './components/JobForm'; 
 
 function App() {
   const [session, setSession] = useState<any>(null);
@@ -30,10 +30,14 @@ function App() {
   return (
     <div>
       <h1>Job Application Tracker</h1>
+
       {session ? (
         <div>
           <p>You're logged in.</p>
           <button onClick={handleLogout}>Logout</button>
+
+          {/* Job submission form shows only if user is logged in */}
+          <JobForm user={session.user} />
         </div>
       ) : (
         <Auth />

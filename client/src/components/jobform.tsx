@@ -44,4 +44,44 @@ export default function jobForm({ user }: { user: any }) {
             setStatus('Applied');
         }
     };
+
+    // jsx to render the actual form
+    return (
+        <form onSubmit={handleSubmit}>
+            <h2>Submit Job Application</h2>
+
+            {/* Input for company name*/}
+            <input
+                type="text"
+                placeholder="Company Name"
+                value={companyName}
+                onChange={(e) => setCompanyName(e.target.value)}
+                required
+            />
+
+            {/* Input for job role/title */}
+            <input
+                type="text"
+                placeholder="Job"
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+                required
+            />
+            {/* Dropdown for job status */}
+            <select value={status} onChange={(e) => setStatus(e.target.value)}>
+                <option value="Applied">Applied</option>
+                <option value="Interviewing">Interviewing</option>
+                <option value="Offer">Offer</option>
+                <option value="Rejected">Rejected</option>
+            </select>
+            {/* Submit button */}
+            <button type="submit">Submit</button>
+
+            {/* Display error or success messages */}
+            {error && <p style={{ color: 'red' }}>{error}</p>}
+
+            {/* Display success meddage */}
+            {success && <p style={{ color: 'green' }}>{success}</p>}
+        </form>
+    );
 }

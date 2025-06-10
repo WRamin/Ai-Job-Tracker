@@ -1,87 +1,105 @@
-// import react's useStat hook for managing form state
 import React, { useState } from 'react';
- //import supabase client to interact with the database
 import { supabase } from '../supabaseClient';
 
+// This form lets the authenticated user submit a new job application
+export default function JobForm({ user }: { user: any }) {
+  // Form fields for job application details
+  const [company, setCompany] = useState('');
+  const [jobTitle, setJobTitle] = useState('');
+  const [jobDescription, setJobDescription] = useState('');
+  const [status, setStatus] = useState('Applied'); // Default value
+  const [appliedDate, setAppliedDate] = useState('');
+  const [notes, setNotes] = useState('');
 
-//define a functional component that recieves the logged-in user as a prop
-export default function jobForm({ user }: { user: any }) {
-    // state for input fields: company name, role and status
-    const [companyName, setCompanyName] = useState('');
-    const [role, setRole] = useState('');
-    const [status, setStatus] = useState('Applied'); // default status option
+  // For success or error messages
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
-    //state to handle form success or error messages
-    const [error, setError] = useState<string | null>(null);
-    const [success, setSuccess] = useState<string | null>(null);
+  // Handle form submission
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault(); // Prevent form from reloading the page
 
-    //function to handle form submition 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault(); // prevent default form page reload
+    // Insert data into 'job_applications' table
+    const { error } = await supabase.from('job_applications').insert([
+      {
+        user_id: user.id,              // Links the record to the user
+        company: company,
+        job_title: jobTitle,
+        job_description: jobDescription,
+        status: status,
+        applied_date: appliedDate,     // Format: 'YYYY-MM-DD'
+        notes: notes,
+      },
+    ]);
 
-        // insert the new job application into the 'jobs' table in the database
-        const { data, error } = await supabase
-            .from('jobs')
-            .insert([
-                {
-                    company_name: companyName,
-                    role: role,
-                    status: status,
-                    user_id: user.id, // associate the job with the logged-in user
-                },
-            ]);
+    // Show result feedback
+    if (error) {
+      setError(error.message);
+      setSuccess(null);
+    } else {
+      setSuccess('Application submitted!');
+      setError(null);
+      // Reset form fields
+      setCompany('');
+      setJobTitle('');
+      setJobDescription('');
+      setStatus('Applied');
+      setAppliedDate('');
+      setNotes('');
+    }
+  };
 
-        // handle errors or success messages
-        if (error) {
-            setError(error.message);
-            setSuccess(null);
-        } else {
-            setSuccess('Job application added successfully!');
-            setError(null);
-            // reset form fields after successful submission
-            setCompanyName('');
-            setRole('');
-            setStatus('Applied');
-        }
-    };
+  // Render the form UI
+  return (
+    <form onSubmit={handleSubmit}>
+      <h2>Add Job Application</h2>
 
-    // jsx to render the actual form
-    return (
-        <form onSubmit={handleSubmit}>
-            <h2>Submit Job Application</h2>
+      <input
+        type="text"
+        placeholder="Company"
+        value={company}
+        onChange={(e) => setCompany(e.target.value)}
+        required
+      />
 
-            {/* Input for company name*/}
-            <input
-                type="text"
-                placeholder="Company Name"
-                value={companyName}
-                onChange={(e) => setCompanyName(e.target.value)}
-                required
-            />
+      <input
+        type="text"
+        placeholder="Job Title"
+        value={jobTitle}
+        onChange={(e) => setJobTitle(e.target.value)}
+        required
+      />
 
-            {/* Input for job role/title */}
-            <input
-                type="text"
-                placeholder="Job"
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-                required
-            />
-            {/* Dropdown for job status */}
-            <select value={status} onChange={(e) => setStatus(e.target.value)}>
-                <option value="Applied">Applied</option>
-                <option value="Interviewing">Interviewing</option>
-                <option value="Offer">Offer</option>
-                <option value="Rejected">Rejected</option>
-            </select>
-            {/* Submit button */}
-            <button type="submit">Submit</button>
+      <textarea
+        placeholder="Job Description"
+        value={jobDescription}
+        onChange={(e) => setJobDescription(e.target.value)}
+      />
 
-            {/* Display error or success messages */}
-            {error && <p style={{ color: 'red' }}>{error}</p>}
+      <select value={status} onChange={(e) => setStatus(e.target.value)}>
+        <option value="Applied">Applied</option>
+        <option value="Interviewing">Interviewing</option>
+        <option value="Offer">Offer</option>
+        <option value="Rejected">Rejected</option>
+      </select>
 
-            {/* Display success meddage */}
-            {success && <p style={{ color: 'green' }}>{success}</p>}
-        </form>
-    );
+      <input
+        type="date"
+        value={appliedDate}
+        onChange={(e) => setAppliedDate(e.target.value)}
+      />
+
+      <textarea
+        placeholder="Notes"
+        value={notes}
+        onChange={(e) => setNotes(e.target.value)}
+      />
+
+      <button type="submit">Submit</button>
+
+      {/* Feedback messages */}
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {success && <p style={{ color: 'green' }}>{success}</p>}
+    </form>
+  );
 }

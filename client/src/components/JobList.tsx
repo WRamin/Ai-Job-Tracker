@@ -97,9 +97,37 @@ export default function JobList({ user }: { user: any }) {
             <li key={job.id}>
               <strong>{job.position}</strong> at {job.company} — {job.status}
               <br />
+              Status: {editingId === job.id ? (
+                <>
+                  <input
+                    type="text"
+                    value={editStatus}
+                    onChange={(e) => setEditStatus(e.target.value)}
+                  />
+                  <button onClick={() => handleUpdate(job.id)}>Save</button>
+                  <button onClick={() => setEditingId(null)}>Cancel</button>
+                </>
+              ) : (
+                <>
+                  {job.status}{' '}
+                  <button
+                    onClick={() => {
+                      setEditingId(job.id);
+                      setEditStatus(job.status);
+                    }}
+                  >
+                    Edit
+                  </button>
+                </>
+              )}
+              <br />
               <small>
                 Applied on {new Date(job.applied_at).toLocaleDateString()}
               </small>
+              <br />
+              <button onClick={() => handleDelete(job.id)} style={{ color: 'red' }}>
+                Delete
+              </button>
             </li>
           ))}
         </ul>

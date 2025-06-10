@@ -17,6 +17,10 @@ export default function JobList({ user }: { user: any }) {
   // Track loading state while fetching data
   const [loading, setLoading] = useState(true);
 
+  //track which job is being edited 
+    const [editingJobId, setEditingJobId] = useState<number | null>(null);
+    const [editStatus, setEditStatus] = useState('');
+
   // useEffect will run once when the component mounts
   useEffect(() => {
     // Async function to fetch job applications from Supabase
@@ -41,6 +45,39 @@ export default function JobList({ user }: { user: any }) {
 
     fetchJobs(); // Run the fetch function on mount
   }, [user.id]); // Run again if user ID changes
+
+  // delete a job from Supabase and update local state
+  const handleDelete = async (id: number) => {
+    const { error } = await supabase
+      .from('job_applications')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      alert('Error deleting job: ' + error.message);
+    } else {
+      setJobs(jobs.filter((job) => job.id !== id));
+    }
+  };
+
+  // update a job's status
+  const handleUpdate = async (id: number) => {
+    const { error } = await supabase
+      .from('job_applications')
+      .update({ status: editStatus })
+      .eq('id', id);
+
+    if (error) {
+      alert('Error updating job: ' + error.message);
+    } else {
+      // Re-fetch job list after update
+      const updatedJobs = jobs.map((job) =>
+        job.id === id ? { ...job, status: editStatus } : job
+      );
+      setJobs(updatedJobs);
+      setEditingId(null);
+    }
+  };
 
   // Render the list of jobs
   return (

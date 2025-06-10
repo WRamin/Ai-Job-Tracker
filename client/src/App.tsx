@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from './supabaseClient';
 import Auth from './components/Auth';
-import JobForm from './components/JobForm'; 
+import JobForm from './components/Jobform'; 
+import JobList from './components/JobList';
 
 function App() {
   const [session, setSession] = useState<any>(null);
@@ -38,6 +39,7 @@ function App() {
 
           {/* Job submission form shows only if user is logged in */}
           <JobForm user={session.user} />
+          <JobList user={session.user} /> 
         </div>
       ) : (
         <Auth />
